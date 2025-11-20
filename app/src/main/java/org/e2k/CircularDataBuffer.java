@@ -16,134 +16,139 @@ package org.e2k;
 import javax.swing.JOptionPane;
 
 public class CircularDataBuffer {
-	
-	private final int MAXCIRC=1024*10;
-	private int circBufferCounter=0;
-	private int[] circDataBuffer=new int[MAXCIRC];
-	
+
+	private final int MAXCIRC = 1024 * 10;
+	private int circBufferCounter = 0;
+	private int[] circDataBuffer = new int[MAXCIRC];
+
 	// Add data to the incoming data circular buffer
-	public void addToCircBuffer (int i)	{
-		try	{
-			circDataBuffer[circBufferCounter]=i;
+	public void addToCircBuffer(int i) {
+		try {
+			circDataBuffer[circBufferCounter] = i;
 			circBufferCounter++;
-			if (circBufferCounter==MAXCIRC)	circBufferCounter=0;
-		}
-		catch (Exception e)	{
-			JOptionPane.showMessageDialog(null,"Error in addToCircBuffer() "+e.toString(),"Rivet", JOptionPane.ERROR_MESSAGE);
+			if (circBufferCounter == MAXCIRC)
+				circBufferCounter = 0;
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Error in addToCircBuffer() " + e.toString(), "Rivet",
+					JOptionPane.ERROR_MESSAGE);
 		}
 	}
-	
+
 	// Return a user defined section of the circular buffer
-	public int[] extractData (int start,int length)	{
-		try	{
-			int count=0,a=circBufferCounter+start;
-			int outData[]=new int[length];
-			if (a>=MAXCIRC) a=a-MAXCIRC;
-			for (count=0;count<length;count++)	{
-				outData[count]=circDataBuffer[a];
+	public int[] extractData(int start, int length) {
+		try {
+			int count = 0, a = circBufferCounter + start;
+			int outData[] = new int[length];
+			if (a >= MAXCIRC)
+				a = a - MAXCIRC;
+			for (count = 0; count < length; count++) {
+				outData[count] = circDataBuffer[a];
 				a++;
-				if (a==MAXCIRC) a=0;
+				if (a == MAXCIRC)
+					a = 0;
 			}
 			return outData;
-		}
-		catch (Exception e)	{
-			JOptionPane.showMessageDialog(null,"Error in extractData() "+e.toString(),"Rivet", JOptionPane.ERROR_MESSAGE);
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Error in extractData() " + e.toString(), "Rivet",
+					JOptionPane.ERROR_MESSAGE);
 			return null;
 		}
 	}
-	
+
 	// Return a user defined section of the circular buffer
-	public double[] extractDataDouble (int start,int length)	{
-		try	{
-			int count=0,a=circBufferCounter+start;
-			double outData[]=new double[length];
-			if (a>=MAXCIRC) a=a-MAXCIRC;
-			for (count=0;count<length;count++)	{
-				outData[count]=circDataBuffer[a];
+	public double[] extractDataDouble(int start, int length) {
+		try {
+			int count = 0, a = circBufferCounter + start;
+			double outData[] = new double[length];
+			if (a >= MAXCIRC)
+				a = a - MAXCIRC;
+			for (count = 0; count < length; count++) {
+				outData[count] = circDataBuffer[a];
 				a++;
-				if (a==MAXCIRC) a=0;
+				if (a == MAXCIRC)
+					a = 0;
 			}
 			return outData;
-		}
-		catch (Exception e)	{
-			JOptionPane.showMessageDialog(null,"Error in extractDataDouble() "+e.toString(),"Rivet", JOptionPane.ERROR_MESSAGE);
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Error in extractDataDouble() " + e.toString(), "Rivet",
+					JOptionPane.ERROR_MESSAGE);
 			return null;
 		}
 	}
-	
+
 	// Return the maximum size of this circular buffer
-	public int retMax()	{
+	public int retMax() {
 		return MAXCIRC;
 	}
-		
+
 	// Return the current value of the buffer counter
-	public int getBufferCounter()	{
+	public int getBufferCounter() {
 		return circBufferCounter;
 	}
-	
+
 	// Allow the value of the buffer counter to be set
-	public void setBufferCounter(int val)	{
-		circBufferCounter=val;
+	public void setBufferCounter(int val) {
+		circBufferCounter = val;
 	}
-	
+
 	// Return the array number with the highest value
-	public int returnHighestBin ()	{
-		try	{
-			int a,highBin=-1;
-			int highVal=Integer.MIN_VALUE;
-			for (a=0;a<circBufferCounter;a++)	{
-				if (circDataBuffer[a]>highVal)	{
-					highVal=circDataBuffer[a];
-					highBin=a;
+	public int returnHighestBin() {
+		try {
+			int a, highBin = -1;
+			int highVal = Integer.MIN_VALUE;
+			for (a = 0; a < circBufferCounter; a++) {
+				if (circDataBuffer[a] > highVal) {
+					highVal = circDataBuffer[a];
+					highBin = a;
 				}
 			}
 			return highBin;
-		}
-		catch (Exception e)	{
-			JOptionPane.showMessageDialog(null,"Error in returnHighestBin() "+e.toString(),"Rivet", JOptionPane.ERROR_MESSAGE);
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Error in returnHighestBin() " + e.toString(), "Rivet",
+					JOptionPane.ERROR_MESSAGE);
 			return 0;
 		}
 	}
-	
+
 	// Return the array number with the lowest value
-	public int returnLowestBin ()	{
-		try	{
-			int a,lowBin=-1;
-			int lowVal=Integer.MAX_VALUE;
-			for (a=0;a<circBufferCounter;a++)	{
-				if (circDataBuffer[a]<lowVal)	{
-					lowVal=circDataBuffer[a];
-					lowBin=a;
+	public int returnLowestBin() {
+		try {
+			int a, lowBin = -1;
+			int lowVal = Integer.MAX_VALUE;
+			for (a = 0; a < circBufferCounter; a++) {
+				if (circDataBuffer[a] < lowVal) {
+					lowVal = circDataBuffer[a];
+					lowBin = a;
 				}
 			}
 			return lowBin;
-		}
-		catch (Exception e)	{
-			JOptionPane.showMessageDialog(null,"Error in returnLowestBin() "+e.toString(),"Rivet", JOptionPane.ERROR_MESSAGE);
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Error in returnLowestBin() " + e.toString(), "Rivet",
+					JOptionPane.ERROR_MESSAGE);
 			return 0;
 		}
 	}
-	
+
 	// Directly access the data buffer
-	public int directAccess (int i)	{
+	public int directAccess(int i) {
 		return this.circDataBuffer[i];
 	}
-	
+
 	// Returns the ABSaverage of a section of the circular buffer
-	public int getABSAverage (int start,int length)	{
+	public int getABSAverage(int start, int length) {
 		int a;
-		double runtotal=0.0;
-		int samples[]=this.extractData(start,length);
-		for (a=0;a<length;a++)	{
-			runtotal=runtotal+Math.abs(samples[a]);
+		double runtotal = 0.0;
+		int samples[] = this.extractData(start, length);
+		for (a = 0; a < length; a++) {
+			runtotal = runtotal + Math.abs(samples[a]);
 		}
-		runtotal=runtotal/(double)length;
-		return (int)runtotal;
+		runtotal = runtotal / (double) length;
+		return (int) runtotal;
 	}
-	
+
 	// This gets the last item put into the buffer which is handy for debugging
-	public int getLast ()	{
+	public int getLast() {
 		return this.circDataBuffer[circBufferCounter];
 	}
-	
+
 }

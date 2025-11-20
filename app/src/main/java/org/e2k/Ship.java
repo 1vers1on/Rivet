@@ -1,26 +1,26 @@
 package org.e2k;
 
 public class Ship {
-	
+
 	private String name;
 	private String mmsi;
 	private String flag;
 	private String imo;
 	private String callsign;
-	private int logCount=0;
-	
+	private int logCount = 0;
+
 	public String getName() {
 		return name;
 	}
-	
+
 	public void setName(String name) {
 		this.name = name;
 	}
-	
+
 	public String getMmsi() {
 		return mmsi;
 	}
-	
+
 	public void setMmsi(String mmsi) {
 		this.mmsi = mmsi;
 	}
@@ -56,6 +56,5 @@ public class Ship {
 	public void incrementLogCount() {
 		this.logCount++;
 	}
-	
 
 }

@@ -22,149 +22,159 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 
 public class DisplayView extends JComponent implements Observer {
-	
-	public static final long serialVersionUID=1;
-	private static final int DISPLAYCOUNT=329;
-	private String displayString[]=new String[DISPLAYCOUNT];
-	private Color displayColour[]=new Color[DISPLAYCOUNT];
-	private Font displayFont[]=new Font[DISPLAYCOUNT];
-	private int displayCounter=0;
-	private Rivet theApp;	
-	
-	public DisplayView (Rivet theApp) {
-		this.theApp=theApp;	
-		//screenTest();
+
+	public static final long serialVersionUID = 1;
+	private static final int DISPLAYCOUNT = 329;
+	private String displayString[] = new String[DISPLAYCOUNT];
+	private Color displayColour[] = new Color[DISPLAYCOUNT];
+	private Font displayFont[] = new Font[DISPLAYCOUNT];
+	private int displayCounter = 0;
+	private Rivet theApp;
+
+	public DisplayView(Rivet theApp) {
+		this.theApp = theApp;
+		// screenTest();
 	}
-			
-	public void update (Observable o,Object rectangle)	{			
+
+	public void update(Observable o, Object rectangle) {
 	}
-			
+
 	// Draw the main screen //
-	public void paint (Graphics g) {
+	public void paint(Graphics g) {
 		// Oldest line first
-		int count=0,pos=20,i=displayCounter+1;
+		int count = 0, pos = 20, i = displayCounter + 1;
 		// Check it hasn't reached its maximum size
-		if (i>=DISPLAYCOUNT) i=0;
-		Graphics2D g2D=(Graphics2D)g;	
+		if (i >= DISPLAYCOUNT)
+			i = 0;
+		Graphics2D g2D = (Graphics2D) g;
 		// Draw in the lines on the screen
 		// taking account of the fact that the data is stored in a circular buffer
 		// we need to display the oldest line stored first and then go backwards from
 		// that point onwards
-		while(count<DISPLAYCOUNT)	{
+		while (count < DISPLAYCOUNT) {
 			// Only display info if something is stored in the display string
-			if (displayString[i]!=null)	{
+			if (displayString[i] != null) {
 				g.setColor(displayColour[i]);
 				g.setFont(displayFont[i]);
-				g2D.drawString(displayString[i].toString(),(5-theApp.horizontal_scrollbar_value),(pos-theApp.vertical_scrollbar_value));	
-				pos=pos+20;
-			}	
+				g2D.drawString(displayString[i].toString(), (5 - theApp.horizontal_scrollbar_value),
+						(pos - theApp.vertical_scrollbar_value));
+				pos = pos + 20;
+			}
 			i++;
-			if (i==DISPLAYCOUNT) i=0;
+			if (i == DISPLAYCOUNT)
+				i = 0;
 			count++;
-		}	
+		}
 		// Detect if the last line written was outside the current viewing area
-		if ((theApp.isAutoScroll()==true)&&(theApp.isAdjusting()==false))	{
-			if ((pos-theApp.vertical_scrollbar_value)>theApp.getCurrentHeight())	{
+		if ((theApp.isAutoScroll() == true) && (theApp.isAdjusting() == false)) {
+			if ((pos - theApp.vertical_scrollbar_value) > theApp.getCurrentHeight()) {
 				theApp.scrollDown(pos);
 				repaint();
 			}
 		}
-		
+
 	}
-	
+
 	// Add a line to the display circular buffer //
-	public void addLine (String line,Color tcol,Font tfont) {		
-		// There may be data on the current line which was added by addChar() so we need to move to the next line
+	public void addLine(String line, Color tcol, Font tfont) {
+		// There may be data on the current line which was added by addChar() so we need
+		// to move to the next line
 		// Increment the circular buffer
 		displayCounter++;
 		// Check it hasn't reached its maximum size
-		if (displayCounter==DISPLAYCOUNT) displayCounter=0;
+		if (displayCounter == DISPLAYCOUNT)
+			displayCounter = 0;
 		// Add this line
-		displayString[displayCounter]=line;
-		displayColour[displayCounter]=tcol;
-		displayFont[displayCounter]=tfont;
+		displayString[displayCounter] = line;
+		displayColour[displayCounter] = tcol;
+		displayFont[displayCounter] = tfont;
 		// Test if autoscroll needs to be on
 		theApp.setAutoScroll(autoScrollSet());
 		// Repaint the screen
 		repaint();
 	}
-	
+
 	// Gets all the text on the screen and returns it as a string
-	public String getText()	{
-		StringBuilder buffer=new StringBuilder();
-		int i=displayCounter+1,count=0;
+	public String getText() {
+		StringBuilder buffer = new StringBuilder();
+		int i = displayCounter + 1, count = 0;
 		// Check it hasn't reached its maximum size
-		if (i>=DISPLAYCOUNT) i=0;
-		while(count<DISPLAYCOUNT)	{
-			if (displayString[i]!=null)	{
+		if (i >= DISPLAYCOUNT)
+			i = 0;
+		while (count < DISPLAYCOUNT) {
+			if (displayString[i] != null) {
 				buffer.append(displayString[i]);
 				buffer.append("\n");
-			}	
+			}
 			i++;
-			if (i>=DISPLAYCOUNT) i=0;
+			if (i >= DISPLAYCOUNT)
+				i = 0;
 			count++;
 		}
 		return buffer.toString();
 	}
-	
+
 	// Adds a single character to the current line
-	public void addChar (String ch,Color col,Font font)	{
-		if (displayString[displayCounter]==null) displayString[displayCounter]="";
-		StringBuilder sb=new StringBuilder(displayString[displayCounter]);
-        sb.append(ch);
-		displayColour[displayCounter]=col;
-		displayFont[displayCounter]=font;
-		displayString[displayCounter]=sb.toString();
+	public void addChar(String ch, Color col, Font font) {
+		if (displayString[displayCounter] == null)
+			displayString[displayCounter] = "";
+		StringBuilder sb = new StringBuilder(displayString[displayCounter]);
+		sb.append(ch);
+		displayColour[displayCounter] = col;
+		displayFont[displayCounter] = font;
+		displayString[displayCounter] = sb.toString();
 		// Test if autoscroll needs to be on
 		theApp.setAutoScroll(autoScrollSet());
 		// Redraw
 		repaint();
 	}
-	
+
 	// Newline
-	public void newLine ()	{
+	public void newLine() {
 		// Increment the circular buffer
 		displayCounter++;
 		// Check it hasn't reached its maximum size
-		if (displayCounter==DISPLAYCOUNT) displayCounter=0;
-		displayString[displayCounter]="";
+		if (displayCounter == DISPLAYCOUNT)
+			displayCounter = 0;
+		displayString[displayCounter] = "";
 		// Test if auto scroll needs to be on
 		theApp.setAutoScroll(autoScrollSet());
 		// Redraw
 		repaint();
 	}
-	
+
 	// Clear the display screen
-	public void clearScreen	()	{
+	public void clearScreen() {
 		int a;
-		displayCounter=0;
-		for (a=0;a<DISPLAYCOUNT;a++)	{
-			displayString[a]=null;
+		displayCounter = 0;
+		for (a = 0; a < DISPLAYCOUNT; a++) {
+			displayString[a] = null;
 		}
 		// Scroll right back up the top
 		theApp.scrollDown(0);
 		// Repaint
 		repaint();
 	}
-	
+
 	// A screen display test routine
-	private void screenTest()	{
+	private void screenTest() {
 		int a;
-		for (a=0;a<DISPLAYCOUNT;a++)	{
-			String line="Line "+Integer.toString(a)+" test";
-			addLine(line,Color.BLACK,theApp.italicFont);
+		for (a = 0; a < DISPLAYCOUNT; a++) {
+			String line = "Line " + Integer.toString(a) + " test";
+			addLine(line, Color.BLACK, theApp.italicFont);
 		}
 	}
-	
+
 	// Check if autoscroll should be turned on
-	private boolean autoScrollSet()	{
+	private boolean autoScrollSet() {
 		// Get the current time
-		long currentTime=System.currentTimeMillis()/1000;
+		long currentTime = System.currentTimeMillis() / 1000;
 		// Is it 30 seconds or more since the last user scroll operation
 		// if so return true
-		if (currentTime-theApp.getLastUserScroll()>=30) return true;
-		else return false;
+		if (currentTime - theApp.getLastUserScroll() >= 30)
+			return true;
+		else
+			return false;
 	}
-	
 
 }

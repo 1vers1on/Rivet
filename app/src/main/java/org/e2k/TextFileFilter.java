@@ -45,9 +45,11 @@ public class TextFileFilter extends javax.swing.filechooser.FileFilter {
 	 * Method to get the extension of the file, in lowercase
 	 */
 	private String getExtension(File f) {
-		String s=f.getName();
-		int i=s.lastIndexOf('.');
-		if (i>0&&i<s.length()-1) return s.substring(i+1).toLowerCase();
-		else return "";
+		String s = f.getName();
+		int i = s.lastIndexOf('.');
+		if (i > 0 && i < s.length() - 1)
+			return s.substring(i + 1).toLowerCase();
+		else
+			return "";
 	}
 }

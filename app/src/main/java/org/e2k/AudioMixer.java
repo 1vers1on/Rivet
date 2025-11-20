@@ -26,29 +26,29 @@ import javax.sound.sampled.TargetDataLine;
 
 /**
  * @author Andy
- * A wrapper class for switching between audio inputs (mixers)
+ *         A wrapper class for switching between audio inputs (mixers)
  *
  */
-class AudioMixer{
-	
+class AudioMixer {
+
 	public String description;
 	public Mixer mixer;
 	public TargetDataLine line;
 	public Line.Info lineInfo;
-	public AudioFormat format=null;
+	public AudioFormat format = null;
 	private String errorMsg;
-	private boolean debugAudio=false;
-	
-	public AudioMixer () {
+	private boolean debugAudio = false;
+
+	public AudioMixer() {
 		setDefaultLine();
 	}
-	
-	public AudioMixer(String x, Mixer m, Line.Info l){
+
+	public AudioMixer(String x, Mixer m, Line.Info l) {
 		this.description = x;
 		this.mixer = m;
 		this.lineInfo = l;
 	}
-	
+
 	/**
 	 * Setters and getters
 	 */
@@ -59,7 +59,7 @@ class AudioMixer{
 	public void setMixer(Mixer mixer) {
 		this.mixer = mixer;
 	}
-	
+
 	public TargetDataLine getLine() {
 		return line;
 	}
@@ -67,41 +67,44 @@ class AudioMixer{
 	public void setLine(TargetDataLine line) {
 		this.line = line;
 	}
-	
+
 	/**
 	 * Set the audio format required
+	 * 
 	 * @return
 	 */
-	public void setAudioFormat (AudioFormat tformat) {
-		this.format=tformat;
+	public void setAudioFormat(AudioFormat tformat) {
+		this.format = tformat;
 	}
-	
-	private AudioFormat getFormat()	{
-		if (this.format==null)	return new AudioFormat(8000,16,1,true,true);
-		else return this.format;
+
+	private AudioFormat getFormat() {
+		if (this.format == null)
+			return new AudioFormat(8000, 16, 1, true, true);
+		else
+			return this.format;
 	}
-	
+
 	/**
 	 * Set the default line for the default mixer
 	 */
-	public void setDefaultLine(){
-	    Mixer mx = AudioSystem.getMixer(null);	//default mixer
-	    this.setMixer(mx);
-		DataLine.Info info = getDataLineInfo();	
-		try	{
+	public void setDefaultLine() {
+		Mixer mx = AudioSystem.getMixer(null); // default mixer
+		this.setMixer(mx);
+		DataLine.Info info = getDataLineInfo();
+		try {
 			this.line = (TargetDataLine) AudioSystem.getLine(info);
-		}catch(LineUnavailableException ex){
-			String err="setDefaultLine() : "+ex.getMessage();
+		} catch (LineUnavailableException ex) {
+			String err = "setDefaultLine() : " + ex.getMessage();
 			audioDebugDump(err);
 		}
 	}
-	
-	
+
 	/**
-	 * Get the DataLine.info object for the TargetDataLine 
+	 * Get the DataLine.info object for the TargetDataLine
+	 * 
 	 * @return
 	 */
-	private DataLine.Info getDataLineInfo(){
+	private DataLine.Info getDataLineInfo() {
 		DataLine.Info info = new DataLine.Info(TargetDataLine.class, this.format); // format is an AudioFormat object
 		if (!AudioSystem.isLineSupported(info)) {
 			// Record the error
@@ -109,124 +112,139 @@ class AudioMixer{
 		}
 		return info;
 	}
-	
+
 	/**
 	 * Gets a data line for the specified mixer
+	 * 
 	 * @param mix
 	 * @return
 	 */
-	public Line getDataLineForMixer(){
+	public Line getDataLineForMixer() {
 		TargetDataLine line = null;
 		try {
-			line=(TargetDataLine)this.mixer.getLine(getDataLineInfo());
+			line = (TargetDataLine) this.mixer.getLine(getDataLineInfo());
 		} catch (LineUnavailableException e) {
 			// Record the error
-			String err="getDataLineForMixer() : "+e.getMessage();
+			String err = "getDataLineForMixer() : " + e.getMessage();
 			audioDebugDump(err);
 		}
-		
+
 		return line;
 	}
-	
+
 	/**
 	 * Open the current line
 	 */
-	public boolean openLine(){
+	public boolean openLine() {
 		try {
 			this.line.open(getFormat());
 			return true;
 		} catch (LineUnavailableException e) {
 			// Record the error
-			errorMsg="openLine() : "+e.getMessage();
+			errorMsg = "openLine() : " + e.getMessage();
 			audioDebugDump(errorMsg);
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Change the mixer and restart the TargetDataLine
+	 * 
 	 * @param mixerName
 	 */
 	public boolean changeMixer(String mixerName) {
-		Mixer mx=null;
-		try	{
-			//stop current line
+		Mixer mx = null;
+		try {
+			// stop current line
 			this.line.stop();
 			this.line.close();
 			this.line.flush();
 			// Record this mixer change
-			if (debugAudio==true) audioDebugDump("changeMixer() : mixerName="+mixerName);
-			//set the new mixer and line
-			mx=getMixer(mixerName);
+			if (debugAudio == true)
+				audioDebugDump("changeMixer() : mixerName=" + mixerName);
+			// set the new mixer and line
+			mx = getMixer(mixerName);
 			// If null we have a problem so return false
-			if (mx==null)	{
-				if (debugAudio==true) audioDebugDump("changeMixer() : mx==null");
+			if (mx == null) {
+				if (debugAudio == true)
+					audioDebugDump("changeMixer() : mx==null");
 				return false;
 			}
 			this.setMixer(mx);
-			this.line=(TargetDataLine) getDataLineForMixer();
-			//restart
-			if (openLine()==false)	{
-				if (debugAudio==true) audioDebugDump("changeMixer() : openLine()==false");
+			this.line = (TargetDataLine) getDataLineForMixer();
+			// restart
+			if (openLine() == false) {
+				if (debugAudio == true)
+					audioDebugDump("changeMixer() : openLine()==false");
 				return false;
 			}
 			this.line.start();
-		}
-		catch (Exception e)	{
+		} catch (Exception e) {
 			// Record the exception
-			errorMsg="changeMixer() : "+e.getMessage();
+			errorMsg = "changeMixer() : " + e.getMessage();
 			// then if a mixer has been obtained then display some information about it
-			if (mx!=null)	{
-				Mixer.Info mInfo=mx.getMixerInfo();
-				errorMsg=errorMsg+"\nMixer Name : "+mInfo.getName()+"\nMixer Description : "+mInfo.getDescription();
+			if (mx != null) {
+				Mixer.Info mInfo = mx.getMixerInfo();
+				errorMsg = errorMsg + "\nMixer Name : " + mInfo.getName() + "\nMixer Description : "
+						+ mInfo.getDescription();
 			}
 			audioDebugDump(errorMsg);
 			return false;
 		}
 		return true;
 	}
-	
+
 	// Returns a particular mixer
-	public Mixer getMixer (String mixerName){
-		Mixer.Info mixers[]=AudioSystem.getMixerInfo();
-		if (debugAudio==true) audioDebugDump("getMixer() : Hunting for "+mixerName);
+	public Mixer getMixer(String mixerName) {
+		Mixer.Info mixers[] = AudioSystem.getMixerInfo();
+		if (debugAudio == true)
+			audioDebugDump("getMixer() : Hunting for " + mixerName);
 		// Iterate through the mixers and display TargetLines
 		int i;
-		for (i=0;i<mixers.length;i++){
-			Mixer m=AudioSystem.getMixer(mixers[i]);
-			if (debugAudio==true) audioDebugDump("getMixer() : Found "+m.getMixerInfo().getName()+" + "+m.getMixerInfo().getDescription());
-			
-			if (m.getMixerInfo().getName().equals(mixerName)){
-				if (debugAudio==true) audioDebugDump("getMixer() : Match !");
+		for (i = 0; i < mixers.length; i++) {
+			Mixer m = AudioSystem.getMixer(mixers[i]);
+			if (debugAudio == true)
+				audioDebugDump(
+						"getMixer() : Found " + m.getMixerInfo().getName() + " + " + m.getMixerInfo().getDescription());
+
+			if (m.getMixerInfo().getName().equals(mixerName)) {
+				if (debugAudio == true)
+					audioDebugDump("getMixer() : Match !");
 				return m;
 			}
 		}
-		//if no mixer found, returns null which is the default mixer on the machine
-		if (debugAudio==true) audioDebugDump("getMixer() : Nothing found !");
+		// if no mixer found, returns null which is the default mixer on the machine
+		if (debugAudio == true)
+			audioDebugDump("getMixer() : Nothing found !");
 		return null;
 	}
-	
+
 	/**
 	 * Get the MixerInfo based on the mixer name
+	 * 
 	 * @param mixerName
 	 * @return
 	 */
-	public Mixer.Info getMixerInfo(String mixerName){
-		Mixer.Info mixers[]=AudioSystem.getMixerInfo();
-		audioDebugDump("getMixerInfo() : Hunting for "+mixerName);
+	public Mixer.Info getMixerInfo(String mixerName) {
+		Mixer.Info mixers[] = AudioSystem.getMixerInfo();
+		audioDebugDump("getMixerInfo() : Hunting for " + mixerName);
 		// Iterate through the mixers and display TargetLines
 		int i;
-		for (i=0;i<mixers.length;i++){
-			Mixer m=AudioSystem.getMixer(mixers[i]);
-			if (debugAudio==true) audioDebugDump("getMixerInfo() : Found "+m.getMixerInfo().getName()+" + "+m.getMixerInfo().getDescription());
-			
-			if (m.getMixerInfo().getName().equals(mixerName)){
-				if (debugAudio==true) audioDebugDump("getMixerInfo() : Match !");
+		for (i = 0; i < mixers.length; i++) {
+			Mixer m = AudioSystem.getMixer(mixers[i]);
+			if (debugAudio == true)
+				audioDebugDump("getMixerInfo() : Found " + m.getMixerInfo().getName() + " + "
+						+ m.getMixerInfo().getDescription());
+
+			if (m.getMixerInfo().getName().equals(mixerName)) {
+				if (debugAudio == true)
+					audioDebugDump("getMixerInfo() : Match !");
 				return m.getMixerInfo();
 			}
 		}
-		//if no mixer found, returns null which is the default mixer on the machine
-		if (debugAudio==true) audioDebugDump("getMixerInfo() : Nothing found !");
+		// if no mixer found, returns null which is the default mixer on the machine
+		if (debugAudio == true)
+			audioDebugDump("getMixerInfo() : Nothing found !");
 		return null;
 	}
 
@@ -234,29 +252,27 @@ class AudioMixer{
 	public String getErrorMsg() {
 		return errorMsg;
 	}
-	
-	public void stopAudio ()	{
-		if (this.line.isOpen()==true)	{
+
+	public void stopAudio() {
+		if (this.line.isOpen() == true) {
 			this.line.stop();
 			this.line.close();
 		}
 	}
-	
+
 	// Record audio mixer errors
-	public void audioDebugDump (String line)	{
-	    try	{
-	    	Date now=new Date();
-			DateFormat df=DateFormat.getTimeInstance();
-	    	FileWriter dfile=new FileWriter("audioDebug.txt",true);
-	    	dfile.write(df.format(now)+" "+line);
-	    	dfile.write("\r\n");
-	    	dfile.flush();  
-	    	dfile.close();
-	    	}
-	    catch (Exception e)	{
-	    		System.err.println("Error: " + e.getMessage());
-	    	}
+	public void audioDebugDump(String line) {
+		try {
+			Date now = new Date();
+			DateFormat df = DateFormat.getTimeInstance();
+			FileWriter dfile = new FileWriter("audioDebug.txt", true);
+			dfile.write(df.format(now) + " " + line);
+			dfile.write("\r\n");
+			dfile.flush();
+			dfile.close();
+		} catch (Exception e) {
+			System.err.println("Error: " + e.getMessage());
 		}
-	
+	}
 
 }
