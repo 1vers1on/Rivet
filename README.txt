@@ -1,6 +1,8 @@
 Rivet is a free open source decoder of various HF data modes which interest members 
 of the Enigma 2000 group.
 
+This version of rivet has been modified by 1vers1on to add more features and better support.
+
 http://groups.yahoo.com/group/enigma2000/
 
 and the UDXF group ..
