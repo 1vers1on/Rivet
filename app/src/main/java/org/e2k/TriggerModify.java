@@ -109,7 +109,7 @@ public class TriggerModify extends JDialog implements ActionListener {
 			int index = getTriggerIndex(selectedTriggerName);
 			// Check if anything has been selected
 			if (index == -1) {
-				JOptionPane.showMessageDialog(null, "Please select the Trigger you wish to edit.", "Rivet",
+				JOptionPane.showMessageDialog(null, "Please select the Trigger you wish to edit.", "Bolt",
 						JOptionPane.ERROR_MESSAGE);
 				return;
 			}
@@ -144,13 +144,13 @@ public class TriggerModify extends JDialog implements ActionListener {
 		int index = getTriggerIndex(selectedTriggerName);
 		// Check if anything has been selected
 		if (index == -1) {
-			JOptionPane.showMessageDialog(null, "Please select the Trigger you wish to delete.", "Rivet",
+			JOptionPane.showMessageDialog(null, "Please select the Trigger you wish to delete.", "Bolt",
 					JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 		// Check the user really wants to do this
 		String chkMsg = "Are you sure you wish to delete the trigger : " + selectedTriggerName;
-		if (JOptionPane.showConfirmDialog(this, chkMsg, "Rivet", JOptionPane.YES_NO_OPTION) == 0) {
+		if (JOptionPane.showConfirmDialog(this, chkMsg, "Bolt", JOptionPane.YES_NO_OPTION) == 0) {
 			// Delete the trigger
 			triggerList.remove(index);
 			// Ensure the object knows that changes have been made

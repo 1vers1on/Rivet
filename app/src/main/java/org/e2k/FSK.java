@@ -366,7 +366,7 @@ public class FSK extends FFT {
 			return (do600baudFSKHalfSymbolBinRequest(circBuf, start, bin0, bin1));
 		else {
 			// We have a problem here !
-			JOptionPane.showMessageDialog(null, "Unsupported Baud Rate", "Rivet", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Unsupported Baud Rate", "Bolt", JOptionPane.ERROR_MESSAGE);
 			return null;
 		}
 	}

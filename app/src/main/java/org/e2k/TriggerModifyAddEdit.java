@@ -139,7 +139,7 @@ public class TriggerModifyAddEdit extends JDialog implements ActionListener {
 		// Description
 		String description = descriptionField.getText();
 		if ((description == null) || (description.length() < 1)) {
-			JOptionPane.showMessageDialog(null, "You must enter a description for a trigger", "Rivet",
+			JOptionPane.showMessageDialog(null, "You must enter a description for a trigger", "Bolt",
 					JOptionPane.INFORMATION_MESSAGE);
 			return false;
 		}
@@ -147,7 +147,7 @@ public class TriggerModifyAddEdit extends JDialog implements ActionListener {
 		String sequence = sequenceField.getText();
 		if ((sequence == null) || (sequence.length() < 4)) {
 			JOptionPane.showMessageDialog(null,
-					"You must enter a binary sequence of 3 or more bits for a valid trigger", "Rivet",
+					"You must enter a binary sequence of 3 or more bits for a valid trigger", "Bolt",
 					JOptionPane.INFORMATION_MESSAGE);
 			return false;
 		}
@@ -159,14 +159,14 @@ public class TriggerModifyAddEdit extends JDialog implements ActionListener {
 			try {
 				forwardGrab = Integer.parseInt(forward);
 			} catch (Exception e) {
-				JOptionPane.showMessageDialog(null, "A Grab Trigger must have a numeric forward grab value", "Rivet",
+				JOptionPane.showMessageDialog(null, "A Grab Trigger must have a numeric forward grab value", "Bolt",
 						JOptionPane.INFORMATION_MESSAGE);
 				return false;
 			}
 			// Check the forward value is positive
 			if (forwardGrab < 0) {
 				JOptionPane.showMessageDialog(null,
-						"A Grab Trigger must not contain a negative numeric forward grab value", "Rivet",
+						"A Grab Trigger must not contain a negative numeric forward grab value", "Bolt",
 						JOptionPane.INFORMATION_MESSAGE);
 				return false;
 			}
@@ -175,14 +175,14 @@ public class TriggerModifyAddEdit extends JDialog implements ActionListener {
 			try {
 				backwardGrab = Integer.parseInt(backward);
 			} catch (Exception e) {
-				JOptionPane.showMessageDialog(null, "A Grab Trigger must have a numeric backward grab value", "Rivet",
+				JOptionPane.showMessageDialog(null, "A Grab Trigger must have a numeric backward grab value", "Bolt",
 						JOptionPane.INFORMATION_MESSAGE);
 				return false;
 			}
 			// Check the forward value is positive
 			if (backwardGrab < 0) {
 				JOptionPane.showMessageDialog(null,
-						"A Grab Trigger must not contain a negative numeric backward grab value", "Rivet",
+						"A Grab Trigger must not contain a negative numeric backward grab value", "Bolt",
 						JOptionPane.INFORMATION_MESSAGE);
 				return false;
 			}

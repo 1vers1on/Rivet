@@ -70,7 +70,7 @@ public class InputThread extends Thread {
 				try {
 					sleep(1);
 				} catch (Exception e) {
-					JOptionPane.showMessageDialog(null, "Error in run()\n" + e.toString(), "Rivet",
+					JOptionPane.showMessageDialog(null, "Error in run()\n" + e.toString(), "Bolt",
 							JOptionPane.ERROR_MESSAGE);
 				}
 			}
@@ -93,7 +93,7 @@ public class InputThread extends Thread {
 			theApp.setSoundCardInputOnly(false);
 			loadingFile = true;
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Error in startFileLoad()\n" + e.toString(), "Rivet",
+			JOptionPane.showMessageDialog(null, "Error in startFileLoad()\n" + e.toString(), "Bolt",
 					JOptionPane.ERROR_MESSAGE);
 			return null;
 		}
@@ -110,7 +110,7 @@ public class InputThread extends Thread {
 				loadingFile = false;
 			} catch (Exception e) {
 				errorCause = e.toString();
-				JOptionPane.showMessageDialog(null, "Error in getFileData()\n" + e.toString(), "Rivet",
+				JOptionPane.showMessageDialog(null, "Error in getFileData()\n" + e.toString(), "Bolt",
 						JOptionPane.ERROR_MESSAGE);
 				return false;
 			}
@@ -146,7 +146,7 @@ public class InputThread extends Thread {
 				sampleCounter++;
 			}
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Error in grabWavBlock16LE()\n" + e.toString(), "Rivet",
+			JOptionPane.showMessageDialog(null, "Error in grabWavBlock16LE()\n" + e.toString(), "Bolt",
 					JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
@@ -178,7 +178,7 @@ public class InputThread extends Thread {
 				sampleCounter++;
 			}
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Error in grabWavBlock8LE()\n" + e.toString(), "Rivet",
+			JOptionPane.showMessageDialog(null, "Error in grabWavBlock8LE()\n" + e.toString(), "Bolt",
 					JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
@@ -213,7 +213,7 @@ public class InputThread extends Thread {
 			// Close the audio stream
 			audioInputStream.close();
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Error in stopReadingFile()\n" + e.toString(), "Rivet",
+			JOptionPane.showMessageDialog(null, "Error in stopReadingFile()\n" + e.toString(), "Bolt",
 					JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
@@ -249,7 +249,7 @@ public class InputThread extends Thread {
 			// Handle any errors changing the mixer
 			if (audioMixer.openLine() == false) {
 				String err = audioMixer.getErrorMsg();
-				JOptionPane.showMessageDialog(null, err, "Rivet", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(null, err, "Bolt", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 			audioMixer.line.start();
@@ -257,7 +257,7 @@ public class InputThread extends Thread {
 			loadingFile = false;
 		} catch (Exception e) {
 			String err = "Fatal error in setupAudio()\n" + e.getMessage();
-			JOptionPane.showMessageDialog(null, err, "Rivet", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, err, "Bolt", JOptionPane.ERROR_MESSAGE);
 			System.exit(0);
 		}
 	}
@@ -270,7 +270,7 @@ public class InputThread extends Thread {
 			return true;
 		} catch (Exception e) {
 			String err = "Error in closeAudio()\n" + e.getMessage();
-			JOptionPane.showMessageDialog(null, err, "Rivet", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, err, "Bolt", JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
 	}
@@ -298,6 +298,51 @@ public class InputThread extends Thread {
 	// integer
 	// then write that into the sound buffer
 	private void getSample() {
+		if (Rivet.usePortAudio) {
+			getPortAudioSample();
+		} else {
+			getJavaSoundSample();
+		}
+	}
+
+	private void getPortAudioSample() {
+		gettingAudio = true;
+		int a, sample, count, total = 0;
+		try {
+			while (total < ISIZE) {
+				count = audioMixer.readPortAudio(buffer, ISIZE);
+				if (count < 0) {
+					String err = "Error reading from PortAudio input stream.";
+					JOptionPane.showMessageDialog(null, err, "Bolt", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				total = total + count;
+			}
+		} catch (Exception e) {
+			String err = e.getMessage();
+			JOptionPane.showMessageDialog(null, err, "Bolt", JOptionPane.ERROR_MESSAGE);
+		}
+		System.out.println("Read " + total + " bytes from PortAudio");
+		// Get the required number of samples
+		for (a = 0; a < total; a = a + 2) {
+            sample = (buffer[a] << 8) + (buffer[a + 1] & 0xFF);
+            if (inputLevel > 0)
+                sample = sample * inputLevel;
+            else if (inputLevel < 0)
+                sample = sample / Math.abs(inputLevel);
+            addToVolumeBuffer(sample);
+            try {
+                outPipe.writeInt(sample);
+                sampleCounter++;
+            } catch (Exception e) {
+                String err = e.getMessage();
+                JOptionPane.showMessageDialog(null, err, "Bolt", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+        gettingAudio = false;
+	}
+
+	private void getJavaSoundSample() {
 		// Tell the main thread we getting audio
 		gettingAudio = true;
 		int a, sample, count, total = 0;
@@ -310,7 +355,7 @@ public class InputThread extends Thread {
 			}
 		} catch (Exception e) {
 			String err = e.getMessage();
-			JOptionPane.showMessageDialog(null, err, "Rivet", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, err, "Bolt", JOptionPane.ERROR_MESSAGE);
 		}
 		// Get the required number of samples
 		for (a = 0; a < ISIZE; a = a + 2) {
@@ -329,7 +374,7 @@ public class InputThread extends Thread {
 				sampleCounter++;
 			} catch (Exception e) {
 				String err = e.getMessage();
-				JOptionPane.showMessageDialog(null, err, "Rivet", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(null, err, "Bolt", JOptionPane.ERROR_MESSAGE);
 			}
 		}
 		// The the main thread we have stopped fetching audio
@@ -338,7 +383,12 @@ public class InputThread extends Thread {
 
 	// Tell the main program if the audio interface is setup
 	public boolean getAudioReady() {
-		return this.audioReady;
+		return this.audioReady || (audioMixer.audioInputStreamStarted() && Rivet.usePortAudio);
+	}
+
+	public boolean changePortAudioDeivce(int deviceIndex, int channels, double sampleRate, long framesPerBuffer) {
+		audioMixer.changePortAudioSettings(deviceIndex, channels, sampleRate, framesPerBuffer);
+		return true;
 	}
 
 	public boolean changeMixer(String mixerName) {

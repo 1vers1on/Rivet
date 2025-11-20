@@ -31,6 +31,54 @@ JNIEXPORT void JNICALL Java_net_ellie_portaudiojni_PortAudioJNI_terminate
 JNIEXPORT jobject JNICALL Java_net_ellie_portaudiojni_PortAudioJNI_enumerateDevices
   (JNIEnv *, jobject);
 
+/*
+ * Class:     net_ellie_portaudiojni_PortAudioJNI
+ * Method:    nativeOpenInputStream
+ * Signature: (IIDJ)J
+ */
+JNIEXPORT jlong JNICALL Java_net_ellie_portaudiojni_PortAudioJNI_nativeOpenInputStream
+  (JNIEnv *, jclass, jint, jint, jdouble, jlong);
+
+/*
+ * Class:     net_ellie_portaudiojni_PortAudioJNI
+ * Method:    nativeStartStream
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_net_ellie_portaudiojni_PortAudioJNI_nativeStartStream
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_ellie_portaudiojni_PortAudioJNI
+ * Method:    nativeStopStream
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_net_ellie_portaudiojni_PortAudioJNI_nativeStopStream
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_ellie_portaudiojni_PortAudioJNI
+ * Method:    nativeCloseStream
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_net_ellie_portaudiojni_PortAudioJNI_nativeCloseStream
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_ellie_portaudiojni_PortAudioJNI
+ * Method:    nativeReadStream
+ * Signature: (J[BJ)J
+ */
+JNIEXPORT jlong JNICALL Java_net_ellie_portaudiojni_PortAudioJNI_nativeReadStream
+  (JNIEnv *, jclass, jlong, jbyteArray, jlong);
+
+/*
+ * Class:     net_ellie_portaudiojni_PortAudioJNI
+ * Method:    nativeReadStreamOffset
+ * Signature: (J[BIJ)J
+ */
+JNIEXPORT jlong JNICALL Java_net_ellie_portaudiojni_PortAudioJNI_nativeReadStreamOffset
+  (JNIEnv *, jclass, jlong, jbyteArray, jint, jlong);
+
 #ifdef __cplusplus
 }
 #endif

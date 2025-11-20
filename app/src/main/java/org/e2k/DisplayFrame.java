@@ -15,6 +15,10 @@ package org.e2k;
 
 import java.awt.*;
 import javax.swing.*;
+
+import net.ellie.portaudiojni.PortAudioJNI;
+import net.ellie.portaudiojni.PortAudioJNI.DeviceInfo;
+
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.*;
 import java.io.File;
@@ -37,11 +41,10 @@ public class DisplayFrame extends JFrame implements ActionListener {
 			reset_item, copy_item, bitstream_item;
 	private JMenuItem XPA_10_item, XPA_20_item, XPA2_item, CROWD36_item, experimental_item, CIS3650_item,
 			FSK200500_item, CCIR493_item, GW_item, RTTY_item;
-	private JMenuItem FSK2001000_item, CROWD36_sync_item, invert_item, save_settings_item, sample_item, e2k_item,
-			twitter_item;
+	private JMenuItem FSK2001000_item, CROWD36_sync_item, invert_item, save_settings_item;
 	private JMenuItem freeChannelMarkerGW_item, RTTYOptions_item, FSK_item, AddEditTrigger_item, credits_item,
 			system_info_item;
-	private JMenuItem ClearDisplay_item, DisplayBad_item, DisplayUTC_item, UDXF_item, CIS360Options_item;
+	private JMenuItem ClearDisplay_item, DisplayBad_item, DisplayUTC_item, CIS360Options_item;
 	private List<JMenuItem> trigger_items = new ArrayList<JMenuItem>();
 	private JMenu audioDevicesMenu;
 	private static ArrayList<AudioMixer> devices;
@@ -161,18 +164,10 @@ public class DisplayFrame extends JFrame implements ActionListener {
 		about_item.addActionListener(this);
 		helpMenu.add(credits_item = new JMenuItem("Credits"));
 		credits_item.addActionListener(this);
-		helpMenu.add(sample_item = new JMenuItem("Download the latest version of Rivet or sound sample files"));
-		sample_item.addActionListener(this);
-		helpMenu.add(e2k_item = new JMenuItem("Enigma2000"));
-		e2k_item.addActionListener(this);
-		helpMenu.add(twitter_item = new JMenuItem("Follow Rivet Progress on Twitter"));
-		twitter_item.addActionListener(this);
 		helpMenu.add(help_item = new JMenuItem("Help"));
 		help_item.addActionListener(this);
 		helpMenu.add(system_info_item = new JMenuItem("System Information"));
 		system_info_item.addActionListener(this);
-		helpMenu.add(UDXF_item = new JMenuItem("UDXF"));
-		UDXF_item.addActionListener(this);
 		menuBar.add(helpMenu);
 		// Add the vertical scroll bar
 		add(vscrollbar, BorderLayout.EAST);
@@ -251,28 +246,13 @@ public class DisplayFrame extends JFrame implements ActionListener {
 		}
 		// About
 		if (event_name == "About") {
-			String line = theApp.program_version + "\r\n" + "ianwraith@gmail.com\r\nfor the Enigma2000 & UDXF groups.";
-			JOptionPane.showMessageDialog(null, line, "Rivet", JOptionPane.INFORMATION_MESSAGE);
-		}
-		// Enigma2000
-		if (event_name == "Enigma2000") {
-			BareBonesBrowserLaunch.openURL("http://www.enigma2000.org.uk/");
-		}
-		// UDXF
-		if (event_name == "UDXF") {
-			BareBonesBrowserLaunch.openURL("http://www.udxf.nl/");
+			// String line = theApp.program_version + "\r\n" + "ianwraith@gmail.com\r\nfor the Enigma2000 & UDXF groups.";
+			String line = theApp.program_version + "\r\n";
+			JOptionPane.showMessageDialog(null, line, "Bolt", JOptionPane.INFORMATION_MESSAGE);
 		}
 		// Help
 		if (event_name == "Help") {
 			BareBonesBrowserLaunch.openURL("https://github.com/IanWraith/Rivet/wiki/Introduction");
-		}
-		// Sound Samples
-		if (event_name == "Download the latest version of Rivet or sound sample files") {
-			BareBonesBrowserLaunch.openURL("http://borg.shef.ac.uk/rivet");
-		}
-		// Twitter
-		if (event_name == "Follow Rivet Progress on Twitter") {
-			BareBonesBrowserLaunch.openURL("https://twitter.com/#!/IanWraith");
 		}
 		// Debug mode
 		if (event_name == "Debug Mode") {
@@ -412,14 +392,44 @@ public class DisplayFrame extends JFrame implements ActionListener {
 		}
 		// Change mixer
 		if (event_name.equalsIgnoreCase("mixer")) {
-			changeMixer(((JRadioButtonMenuItem) event.getSource()).getText());
+			// changeMixer(((JRadioButtonMenuItem) event.getSource()).getText());
+			if (Rivet.usePortAudio) {
+				String menuText = ((JRadioButtonMenuItem) event.getSource()).getText();
+				int idIndex = menuText.lastIndexOf("ID ");
+				if (idIndex == -1) {
+					System.err.println("Error parsing audio device index from menu text: " + menuText);
+					return;
+				}
+				int deviceIndex = Integer.parseInt(menuText.substring(idIndex + 3).trim());
+				List<DeviceInfo> devices = Rivet.getPortAudioInstance().enumerateDevices();
+				DeviceInfo selectedDevice = null;
+				for (DeviceInfo dev : devices) {
+					if (dev.index() == deviceIndex) {
+						selectedDevice = dev;
+						break;
+					}
+				}
+
+				if (selectedDevice == null) {
+					System.err.println("Error: Selected device not found for index: " + deviceIndex);
+					return;
+				}
+
+				int channels = Math.min(selectedDevice.maxInputChannels(), 2); // use up to stereo
+				double sampleRate = selectedDevice.defaultSampleRate();
+				long framesPerBuffer = 256; // default buffer size
+				theApp.inputThread.changePortAudioDeivce(deviceIndex, channels, sampleRate, framesPerBuffer);
+			} else {
+				theApp.inputThread.changeMixer(((JRadioButtonMenuItem) event.getSource()).getText());
+			}
 		}
 		// Credits
 		if (event_name == "Credits") {
 			StringBuilder sb = new StringBuilder();
 			sb.append("Thanks to ..");
+			sb.append("\r\nIan Wraith for creating the original Rivet");
 			sb.append("\r\nAlan W for his help with the GW MMSI decoding");
-			JOptionPane.showMessageDialog(null, sb.toString(), "Rivet", JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(null, sb.toString(), "Bolt", JOptionPane.INFORMATION_MESSAGE);
 		}
 
 		menuItemUpdate();
@@ -517,7 +527,7 @@ public class DisplayFrame extends JFrame implements ActionListener {
 			theApp.file.flush();
 			theApp.file.close();
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Error closing Log file", "Rivet", JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Error closing Log file", "Bolt", JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
 
@@ -529,7 +539,7 @@ public class DisplayFrame extends JFrame implements ActionListener {
 			theApp.bitStreamFile.flush();
 			theApp.bitStreamFile.close();
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Error closing the Bit Stream file", "Rivet",
+			JOptionPane.showMessageDialog(null, "Error closing the Bit Stream file", "Bolt",
 					JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
@@ -678,26 +688,42 @@ public class DisplayFrame extends JFrame implements ActionListener {
 		AddEditTrigger_item.addActionListener(this);
 		// Save these triggers
 		if (theApp.saveTriggerXMLFile() == false) {
-			JOptionPane.showMessageDialog(null, "Error saving the Triggers", "Rivet", JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Error saving the Triggers", "Bolt", JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
 
 	private JMenu buildAudioDevices() {
 		JMenu ret = new JMenu("Audio Devices");
 		ButtonGroup group = new ButtonGroup();
-		ArrayList<AudioMixer> deviceList = getCompatibleDevices();
-		int i;
-		for (i = 0; i < deviceList.size(); i++) {
-			// Line.Info l[]=AudioSystem.getTargetLineInfo(deviceList.get(i).lineInfo);
-			JRadioButtonMenuItem dev = new JRadioButtonMenuItem(deviceList.get(i).description);
-			dev.setActionCommand("mixer");
-			dev.addActionListener(this);
-			if (i == 0)
-				dev.setSelected(true);
-			group.add(dev);
-			ret.add(dev);
+		if (Rivet.usePortAudio) {
+			List<PortAudioJNI.DeviceInfo> deviceList = Rivet.getPortAudioInstance().enumerateDevices();
+			for (PortAudioJNI.DeviceInfo di : deviceList) {
+				if (di.maxInputChannels() > 0) {
+					JRadioButtonMenuItem dev = new JRadioButtonMenuItem(di.name() + ": ID " + di.index());
+					dev.setActionCommand("mixer");
+					dev.addActionListener(this);
+					if (di.maxInputChannels() > 1)
+						dev.setSelected(true);
+					group.add(dev);
+					ret.add(dev);
+				}
+			}
+			return ret;
+		} else {
+			ArrayList<AudioMixer> deviceList = getCompatibleDevices();
+			int i;
+			for (i = 0; i < deviceList.size(); i++) {
+				// Line.Info l[]=AudioSystem.getTargetLineInfo(deviceList.get(i).lineInfo);
+				JRadioButtonMenuItem dev = new JRadioButtonMenuItem(deviceList.get(i).description);
+				dev.setActionCommand("mixer");
+				dev.addActionListener(this);
+				if (i == 0)
+					dev.setSelected(true);
+				group.add(dev);
+				ret.add(dev);
+			}
+			return ret;
 		}
-		return ret;
 	}
 
 	// Provide a list of all compatable sound sources
@@ -728,7 +754,7 @@ public class DisplayFrame extends JFrame implements ActionListener {
 	private void changeMixer(String mixerName) {
 		if (theApp.changeMixer(mixerName) == false) {
 			JOptionPane.showMessageDialog(null, "Error changing mixer\n" + theApp.inputThread.getMixerErrorMessage(),
-					"Rivet", JOptionPane.ERROR_MESSAGE);
+					"Bolt", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 

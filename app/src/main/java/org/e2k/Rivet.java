@@ -44,14 +44,19 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import net.ellie.portaudiojni.PortAudioJNI;
+
 public class Rivet {
+	public static final boolean usePortAudio = true;
+	private static PortAudioJNI portAudio;
+
 
 	private static boolean RUNNING = true;
 	private DisplayModel display_model;
 	private DisplayView display_view;
 	private static Rivet theApp;
 	private static DisplayFrame window;
-	public final String program_version = "Rivet (Build 89) by Ian Wraith";
+	public final String program_version = "Bolt by 1vers1on";
 	public int vertical_scrollbar_value = 0;
 	public int horizontal_scrollbar_value = 0;
 	public boolean pReady = false;
@@ -114,7 +119,16 @@ public class Rivet {
 			"FSK (Raw)"
 	};
 
-	public static void main(String[] args) {
+	public static PortAudioJNI getPortAudioInstance() {
+		if (portAudio == null) {
+			portAudio = new PortAudioJNI();
+			portAudio.initialize();
+		}
+		return portAudio;
+	}
+
+	// why did they name it theApp bruh just name it instance and have a get instance method.
+	public static void run() {
 		theApp = new Rivet();
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
@@ -128,21 +142,20 @@ public class Rivet {
 			// Now connect a data input stream to the piped input stream
 			theApp.inPipeData = new DataInputStream(theApp.inPipe);
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Error in main()", "Rivet", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Error in main()", "Bolt", JOptionPane.ERROR_MESSAGE);
 			System.exit(0);
 		}
 		// The main loop
 		while (RUNNING) {
-			if ((theApp.wavFileLoadOngoing == true) && (theApp.pReady == true))
+			if ((theApp.wavFileLoadOngoing == true) && (theApp.pReady == true)) {
 				theApp.getWavData();
-			else if ((theApp.inputThread.getAudioReady() == true) && (theApp.pReady == true))
+			} else if ((theApp.inputThread.getAudioReady() == true) && (theApp.pReady == true)) {
 				theApp.getAudioData();
-			else {
-				// Add the following so the thread doesn't eat all of the CPU time
+			} else {
 				try {
 					Thread.sleep(1);
 				} catch (Exception e) {
-					JOptionPane.showMessageDialog(null, "Error in main2()\n" + e.toString(), "Rivet",
+					JOptionPane.showMessageDialog(null, "Error in main2()\n" + e.toString(), "Bolt",
 							JOptionPane.ERROR_MESSAGE);
 				}
 			}
@@ -380,7 +393,7 @@ public class Rivet {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(null, "Error in getWavData()", "Rivet", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Error in getWavData()", "Bolt", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
@@ -397,7 +410,7 @@ public class Rivet {
 				updateVolumeBar();
 		} catch (Exception e) {
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(null, "Error in getAudioData()", "Rivet", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Error in getAudioData()", "Bolt", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
@@ -451,7 +464,7 @@ public class Rivet {
 			StringWriter sw = new StringWriter();
 			e.printStackTrace(new PrintWriter(sw));
 			String str = sw.toString();
-			JOptionPane.showMessageDialog(null, "Error in processData()\n" + str, "Rivet", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Error in processData()\n" + str, "Bolt", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
@@ -515,7 +528,7 @@ public class Rivet {
 			// Stop logging as we have a problem
 			logging = false;
 			JOptionPane.showMessageDialog(null, "Error writing to the log file in fileWriteLine().\n" + e.toString(),
-					"Rivet", JOptionPane.ERROR_MESSAGE);
+					"Bolt", JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
 		return true;
@@ -529,7 +542,7 @@ public class Rivet {
 			// Stop logging as we have a problem
 			logging = false;
 			JOptionPane.showMessageDialog(null, "Error writing to the log file in fileWriteChar().\n" + e.toString(),
-					"Rivet", JOptionPane.ERROR_MESSAGE);
+					"Bolt", JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
 		return true;
@@ -543,7 +556,7 @@ public class Rivet {
 			// Stop logging as we have a problem
 			logging = false;
 			JOptionPane.showMessageDialog(null, "Error writing to the log file in fileWriteNewline().\n" + e.toString(),
-					"Rivet", JOptionPane.ERROR_MESSAGE);
+					"Bolt", JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
 		return true;
@@ -562,7 +575,7 @@ public class Rivet {
 		} catch (Exception e) {
 			// We have a problem
 			bitStreamOut = false;
-			JOptionPane.showMessageDialog(null, "Error writing to the bit stream file.\n" + e.toString(), "Rivet",
+			JOptionPane.showMessageDialog(null, "Error writing to the bit stream file.\n" + e.toString(), "Bolt",
 					JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
@@ -1011,7 +1024,7 @@ public class Rivet {
 			xmlfile.close();
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Error : Unable to create the file rivet_settings.xml\n" + e.toString(),
-					"Rivet", JOptionPane.ERROR_MESSAGE);
+					"Bolt", JOptionPane.ERROR_MESSAGE);
 		}
 		return;
 	}
@@ -1114,7 +1127,7 @@ public class Rivet {
 					if (inputThread.changeMixer(aval) == false) {
 						JOptionPane.showMessageDialog(null,
 								"Read XML Error changing mixer\n" + inputThread.getMixerErrorMessage() + "\n" + aval,
-								"Rivet", JOptionPane.ERROR_MESSAGE);
+								"Bolt", JOptionPane.ERROR_MESSAGE);
 					}
 				}
 				// Display bad packets

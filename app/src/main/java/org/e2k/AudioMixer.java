@@ -24,13 +24,15 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.TargetDataLine;
 
+import net.ellie.portaudiojni.AudioInputStream;
+import net.ellie.portaudiojni.PortAudioJNI;
+
 /**
  * @author Andy
  *         A wrapper class for switching between audio inputs (mixers)
  *
  */
 class AudioMixer {
-
 	public String description;
 	public Mixer mixer;
 	public TargetDataLine line;
@@ -38,6 +40,25 @@ class AudioMixer {
 	public AudioFormat format = null;
 	private String errorMsg;
 	private boolean debugAudio = false;
+
+	private AudioInputStream audioInputStream;
+	private int paDeviceIndex = -1;
+	private int paChannels = 1;
+	private double paSampleRate = 8000.0;
+	private long paFramesPerBuffer = 256;
+	private boolean paEnabled = false;
+
+	public boolean isPaEnabled() {
+		return paEnabled;
+	}
+
+	public boolean audioInputStreamStarted() {
+		if (audioInputStream != null) {
+			return audioInputStream.isStarted();
+		} else {
+			return false;
+		}
+	}
 
 	public AudioMixer() {
 		setDefaultLine();
@@ -47,6 +68,74 @@ class AudioMixer {
 		this.description = x;
 		this.mixer = m;
 		this.lineInfo = l;
+	}
+
+	public boolean enablePortAudio(int deviceIndex, int channels, double sampleRate, long framesPerBuffer) {
+		try {
+			this.paDeviceIndex = deviceIndex;
+			this.paChannels = channels;
+			this.paSampleRate = sampleRate;
+			this.paFramesPerBuffer = framesPerBuffer;
+
+			if (line != null && line.isOpen()) {
+				try {
+					line.stop();
+				} catch (Exception e) {}
+				line.close();
+			}
+			audioInputStream = Rivet.getPortAudioInstance().openInputStream(paDeviceIndex, paChannels, paSampleRate,
+					paFramesPerBuffer);
+			audioInputStream.start();
+			return true;
+		} catch (Exception e) {
+			String err = "enablePortAudio() : " + e.getMessage();
+			audioDebugDump(err);
+			return false;
+		}
+	}
+
+	public void disablePortAudio() {
+		try {
+			if (audioInputStream != null) {
+				audioInputStream.close();
+				audioInputStream = null;
+			}
+		} catch (Exception e) {
+			String err = "disablePortAudio() : " + e.getMessage();
+			audioDebugDump(err);
+		}
+	}
+
+	public int readPortAudio(byte[] buffer, int len) {
+		if (audioInputStream != null) {
+			try {
+				return audioInputStream.read(buffer, 0, len);
+			} catch (Exception e) {
+				String err = "readPortAudio() : " + e.getMessage();
+				audioDebugDump(err);
+				return -1;
+			}
+		} else {
+			return -1;
+		}
+	}
+
+	public void changePortAudioSettings(int deviceIndex, int channels, double sampleRate, long framesPerBuffer) {
+		if (!paEnabled) {
+			enablePortAudio(deviceIndex, channels, sampleRate, framesPerBuffer);
+			return;
+		}
+		try {
+			if (audioInputStream != null) {
+				audioInputStream.close();
+			}
+			audioInputStream = Rivet.getPortAudioInstance().openInputStream(deviceIndex, channels, sampleRate,
+					framesPerBuffer);
+			audioInputStream.start();
+		} catch (Exception e) {
+			String err = "changePortAudioSettings() : " + e.getMessage();
+			audioDebugDump(err);
+		}
 	}
 
 	/**

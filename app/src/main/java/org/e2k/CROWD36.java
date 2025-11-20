@@ -70,20 +70,20 @@ public class CROWD36 extends MFSK {
 				state = -1;
 				JOptionPane.showMessageDialog(null,
 						"WAV files containing\nCROWD36 recordings must have\nbeen recorded at a sample rate\nof 11.025 KHz or less.",
-						"Rivet", JOptionPane.INFORMATION_MESSAGE);
+						"Bolt", JOptionPane.INFORMATION_MESSAGE);
 				return false;
 			}
 			// Check this is a mono recording
 			if (waveData.getChannels() != 1) {
 				state = -1;
-				JOptionPane.showMessageDialog(null, "Rivet can only process\nmono WAV files.", "Rivet",
+				JOptionPane.showMessageDialog(null, "Bolt can only process\nmono WAV files.", "Bolt",
 						JOptionPane.INFORMATION_MESSAGE);
 				return false;
 			}
 			// Check this is a 16 bit WAV file
 			if (waveData.getSampleSizeInBits() != 16) {
 				state = -1;
-				JOptionPane.showMessageDialog(null, "Rivet can only process\n16 bit WAV files.", "Rivet",
+				JOptionPane.showMessageDialog(null, "Bolt can only process\n16 bit WAV files.", "Bolt",
 						JOptionPane.INFORMATION_MESSAGE);
 				return false;
 			}
@@ -249,7 +249,7 @@ public class CROWD36 extends MFSK {
 				figureShift = false;
 
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, e.toString(), "Rivet", JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(null, e.toString(), "Bolt", JOptionPane.INFORMATION_MESSAGE);
 			return "";
 		}
 

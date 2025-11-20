@@ -1,3 +1,12 @@
+I renamed the project to Bolt as it is my own fork.
+
+
+
+
+
+
+
+
 Rivet is a free open source decoder of various HF data modes which interest members 
 of the Enigma 2000 group.
 

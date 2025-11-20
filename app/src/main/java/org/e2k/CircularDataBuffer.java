@@ -29,7 +29,7 @@ public class CircularDataBuffer {
 			if (circBufferCounter == MAXCIRC)
 				circBufferCounter = 0;
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Error in addToCircBuffer() " + e.toString(), "Rivet",
+			JOptionPane.showMessageDialog(null, "Error in addToCircBuffer() " + e.toString(), "Bolt",
 					JOptionPane.ERROR_MESSAGE);
 		}
 	}
@@ -49,7 +49,7 @@ public class CircularDataBuffer {
 			}
 			return outData;
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Error in extractData() " + e.toString(), "Rivet",
+			JOptionPane.showMessageDialog(null, "Error in extractData() " + e.toString(), "Bolt",
 					JOptionPane.ERROR_MESSAGE);
 			return null;
 		}
@@ -70,7 +70,7 @@ public class CircularDataBuffer {
 			}
 			return outData;
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Error in extractDataDouble() " + e.toString(), "Rivet",
+			JOptionPane.showMessageDialog(null, "Error in extractDataDouble() " + e.toString(), "Bolt",
 					JOptionPane.ERROR_MESSAGE);
 			return null;
 		}
@@ -104,7 +104,7 @@ public class CircularDataBuffer {
 			}
 			return highBin;
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Error in returnHighestBin() " + e.toString(), "Rivet",
+			JOptionPane.showMessageDialog(null, "Error in returnHighestBin() " + e.toString(), "Bolt",
 					JOptionPane.ERROR_MESSAGE);
 			return 0;
 		}
@@ -123,7 +123,7 @@ public class CircularDataBuffer {
 			}
 			return lowBin;
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Error in returnLowestBin() " + e.toString(), "Rivet",
+			JOptionPane.showMessageDialog(null, "Error in returnLowestBin() " + e.toString(), "Bolt",
 					JOptionPane.ERROR_MESSAGE);
 			return 0;
 		}
