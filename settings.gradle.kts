@@ -11,3 +11,5 @@ plugins {
 }
 
 rootProject.name = "Rivet"
+
+include("app", "portaudio-jni")

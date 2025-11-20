@@ -28,6 +28,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
+
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Mixer;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -112,6 +115,13 @@ public class Rivet {
 			};
     
 	public static void main(String[] args) {
+		// list all audio devices with java sound for debugging
+		Mixer.Info[] mixers = AudioSystem.getMixerInfo();
+		System.out.println("Available Audio Mixers:");
+		for (int i = 0; i < mixers.length; i++) {
+			System.out.println( (i+1) + ": " + mixers[i].getName() + " - " + mixers[i].getDescription());
+		}
+
 		theApp=new Rivet();
 		SwingUtilities.invokeLater(new Runnable(){public void run(){theApp.createGUI();}});
 		// Get data from the sound card thread

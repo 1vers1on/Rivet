@@ -675,13 +675,13 @@ public class DisplayFrame extends JFrame implements ActionListener {
 		for (i=0;i<mixers.length;i++){
 			Mixer m=AudioSystem.getMixer(mixers[i]);
 			Line.Info l[]=m.getTargetLineInfo();
-			// Check these exist and are "Capture" devices
-			if((l.length>0)&&((m.getMixerInfo().getDescription().endsWith("Capture")==true))){
+			if(l.length>0){
 				int x;
 				for (x=0;x<l.length;x++){
-					if (l[0].getLineClass().getName().equals("javax.sound.sampled.TargetDataLine"))	{
+					if (l[x].getLineClass().getName().equals("javax.sound.sampled.TargetDataLine"))	{
 						AudioMixer mc=new AudioMixer(mixers[i].getName(),m,l[x]);
-						devices.add(mc);			
+						devices.add(mc);
+						break; // Only add once per mixer
 					}
 				}
 			}

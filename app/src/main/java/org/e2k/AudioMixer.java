@@ -186,7 +186,7 @@ class AudioMixer{
 		return true;
 	}
 	
-	// Returns a particular mixer but first checking that it is a capture device
+	// Returns a particular mixer
 	public Mixer getMixer (String mixerName){
 		Mixer.Info mixers[]=AudioSystem.getMixerInfo();
 		if (debugAudio==true) audioDebugDump("getMixer() : Hunting for "+mixerName);
@@ -195,9 +195,8 @@ class AudioMixer{
 		for (i=0;i<mixers.length;i++){
 			Mixer m=AudioSystem.getMixer(mixers[i]);
 			if (debugAudio==true) audioDebugDump("getMixer() : Found "+m.getMixerInfo().getName()+" + "+m.getMixerInfo().getDescription());
-			// Ensure that only sound capture devices can be selected
-			boolean isCaptureDevice=m.getMixerInfo().getDescription().endsWith("Capture");
-			if ((m.getMixerInfo().getName().equals(mixerName))&&(isCaptureDevice==true)){
+			
+			if (m.getMixerInfo().getName().equals(mixerName)){
 				if (debugAudio==true) audioDebugDump("getMixer() : Match !");
 				return m;
 			}
@@ -220,9 +219,8 @@ class AudioMixer{
 		for (i=0;i<mixers.length;i++){
 			Mixer m=AudioSystem.getMixer(mixers[i]);
 			if (debugAudio==true) audioDebugDump("getMixerInfo() : Found "+m.getMixerInfo().getName()+" + "+m.getMixerInfo().getDescription());
-			// Ensure that only sound capture devices can be selected
-			boolean isCaptureDevice=m.getMixerInfo().getDescription().endsWith("Capture");
-			if ((m.getMixerInfo().getName().equals(mixerName))&&(isCaptureDevice==true)){
+			
+			if (m.getMixerInfo().getName().equals(mixerName)){
 				if (debugAudio==true) audioDebugDump("getMixerInfo() : Match !");
 				return m.getMixerInfo();
 			}

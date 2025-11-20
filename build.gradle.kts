@@ -1,21 +1,9 @@
 plugins {
-    application
+    `java-base`
 }
 
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    implementation("org.openimaj:JTransforms:1.3.10")
-}
-
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+allprojects {
+    repositories {
+        mavenCentral()
     }
-}
-
-application {
-    mainClass = "org.e2k.Rivet"
 }
